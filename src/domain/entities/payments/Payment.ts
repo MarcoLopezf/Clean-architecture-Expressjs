@@ -1,16 +1,18 @@
+import { Price } from '../../shared/Price';
+import { SubscriptionId } from '../../shared/SubscriptionId';
+
 export type PaymentStatus = 'pending' | 'completed' | 'failed';
 
 interface PaymentProps {
   readonly id: string;
-  readonly subscriptionId: string;
-  readonly amount: number;
-  readonly currency: string;
+  readonly subscriptionId: SubscriptionId;
+  readonly price: Price;
   status: PaymentStatus;
   readonly createdAt: Date;
   processedAt?: Date;
 }
 
-export interface CreatePaymentProps {
+export interface PaymentCreateProps {
   id: string;
   subscriptionId: string;
   amount: number;
@@ -21,15 +23,11 @@ export interface CreatePaymentProps {
 export class Payment {
   private constructor(private readonly props: PaymentProps) {}
 
-  static create(props: CreatePaymentProps): Payment {
-    Payment.ensureValidAmount(props.amount);
-    Payment.ensureCurrencyCode(props.currency);
-
+  static create(props: PaymentCreateProps): Payment {
     const paymentProps: PaymentProps = {
       id: props.id,
-      subscriptionId: props.subscriptionId,
-      amount: props.amount,
-      currency: props.currency.toUpperCase(),
+      subscriptionId: SubscriptionId.create(props.subscriptionId),
+      price: Price.create(props.amount, props.currency),
       status: 'pending',
       createdAt: props.createdAt ?? new Date()
     };
@@ -42,15 +40,19 @@ export class Payment {
   }
 
   get subscriptionId(): string {
-    return this.props.subscriptionId;
+    return this.props.subscriptionId.toString();
   }
 
   get amount(): number {
-    return this.props.amount;
+    return this.props.price.amount;
   }
 
   get currency(): string {
-    return this.props.currency;
+    return this.props.price.currency;
+  }
+
+  get price(): Price {
+    return this.props.price;
   }
 
   get status(): PaymentStatus {
@@ -86,32 +88,20 @@ export class Payment {
     this.props.status = 'failed';
   }
 
-  toPrimitives(): PaymentSnapshot {
+  toPrimitives(): PaymentPrimitives {
     return {
       id: this.props.id,
-      subscriptionId: this.props.subscriptionId,
-      amount: this.props.amount,
-      currency: this.props.currency,
+      subscriptionId: this.subscriptionId,
+      amount: this.amount,
+      currency: this.currency,
       status: this.props.status,
       createdAt: this.props.createdAt,
       processedAt: this.props.processedAt
     };
   }
-
-  private static ensureValidAmount(amount: number): void {
-    if (!Number.isFinite(amount) || amount <= 0) {
-      throw new Error('Payment amount must be a positive number.');
-    }
-  }
-
-  private static ensureCurrencyCode(currency: string): void {
-    if (!/^[A-Z]{3}$/i.test(currency)) {
-      throw new Error('Currency must be a valid ISO 4217 code.');
-    }
-  }
 }
 
-export interface PaymentSnapshot {
+export interface PaymentPrimitives {
   id: string;
   subscriptionId: string;
   amount: number;

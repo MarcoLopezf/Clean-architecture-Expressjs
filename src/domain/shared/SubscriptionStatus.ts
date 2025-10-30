@@ -1,13 +1,20 @@
-export type SubscriptionStatusValue = 'active' | 'paused' | 'cancelled';
+export enum SubscriptionStatusValue {
+  ACTIVE = 'active',
+  PAUSED = 'paused',
+  CANCELLED = 'cancelled'
+}
 
 export class SubscriptionStatus {
   private constructor(private readonly value: SubscriptionStatusValue) {}
 
-  static readonly ACTIVE = new SubscriptionStatus('active');
-  static readonly PAUSED = new SubscriptionStatus('paused');
-  static readonly CANCELLED = new SubscriptionStatus('cancelled');
+  static readonly ACTIVE = new SubscriptionStatus(SubscriptionStatusValue.ACTIVE);
+  static readonly PAUSED = new SubscriptionStatus(SubscriptionStatusValue.PAUSED);
+  static readonly CANCELLED = new SubscriptionStatus(
+    SubscriptionStatusValue.CANCELLED
+  );
 
   static create(value: SubscriptionStatusValue): SubscriptionStatus {
+    SubscriptionStatus.ensureValid(value);
     return new SubscriptionStatus(value);
   }
 
@@ -17,5 +24,11 @@ export class SubscriptionStatus {
 
   toString(): SubscriptionStatusValue {
     return this.value;
+  }
+
+  private static ensureValid(value: SubscriptionStatusValue): void {
+    if (!Object.values(SubscriptionStatusValue).includes(value)) {
+      throw new Error(`Invalid subscription status: ${value as string}`);
+    }
   }
 }
