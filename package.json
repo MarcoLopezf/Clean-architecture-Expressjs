@@ -7,7 +7,8 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "ts-node main/composition.ts",
+    "dev": "ts-node main/server.ts",
+    "dev:composition": "ts-node main/composition.ts",
     "test": "vitest"
   },
   "keywords": [],
@@ -15,12 +16,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^24.9.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2"
   }
 }
