@@ -35,7 +35,9 @@ describe('CreateSubscriptionUseCase', () => {
     };
 
     const planRepo: PlanRepository = {
-      findById: vi.fn().mockResolvedValue(plan)
+      findById: vi.fn().mockResolvedValue(plan),
+      save: vi.fn(),
+      update: vi.fn()
     };
 
     const userRepo: UserRepository = {
