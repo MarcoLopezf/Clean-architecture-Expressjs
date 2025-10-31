@@ -1,5 +1,5 @@
-import { EventPublisher } from '../../application/ports/event.publisher';
-import { DomainEvent } from '../../domain/shared/DomainEvent';
+import { EventPublisher } from '../../../application/ports/event.publisher';
+import { DomainEvent } from '../../../domain/shared/DomainEvent';
 
 export class InMemoryEventPublisher implements EventPublisher {
   readonly published: DomainEvent[] = [];

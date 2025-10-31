@@ -1,7 +1,7 @@
-import { User } from '../../../domain/entities/users/User';
-import { UserCreateProps, UserPrimitives } from '../../../domain/entities/users/User';
-import { UserRepository } from '../../../application/ports/user.repository';
-import { UserId } from '../../../domain/shared/UserId';
+import { User } from '../../../../domain/entities/users/User';
+import { UserCreateProps, UserPrimitives } from '../../../../domain/entities/users/User';
+import { UserRepository } from '../../../../application/ports/user.repository';
+import { UserId } from '../../../../domain/shared/UserId';
 
 export class InMemoryUserRepository implements UserRepository {
   private readonly storage = new Map<string, UserPrimitives>();

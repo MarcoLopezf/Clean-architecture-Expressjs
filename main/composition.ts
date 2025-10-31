@@ -1,8 +1,8 @@
-import { InMemoryPlanRepository } from '../src/infrastructure/persistence/in-memory/InMemoryPlanRepository';
-import { InMemoryUserRepository } from '../src/infrastructure/persistence/in-memory/InMemoryUserRepository';
-import { InMemorySubscriptionRepository } from '../src/infrastructure/persistence/in-memory/InMemorySubscriptionRepository';
-import { InMemoryPaymentGateway } from '../src/infrastructure/payments/InMemoryPaymentGateway';
-import { InMemoryEventPublisher } from '../src/infrastructure/events/InMemoryEventPublisher';
+import { InMemoryPlanRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryPlanRepository';
+import { InMemoryUserRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryUserRepository';
+import { InMemorySubscriptionRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemorySubscriptionRepository';
+import { InMemoryPaymentGateway } from '../src/infrastructure/adapters/gateways/InMemoryPaymentGateway';
+import { InMemoryEventPublisher } from '../src/infrastructure/adapters/gateways/InMemoryEventPublisher';
 import { UuidIdGenerator } from '../src/infrastructure/id/UuidIdGenerator';
 
 import { CreateSubscriptionUseCase } from '../src/application/use-cases/subscriptions/CreateSubscriptionUseCase';

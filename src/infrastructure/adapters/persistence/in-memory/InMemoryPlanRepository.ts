@@ -1,7 +1,7 @@
-import { Plan } from '../../../domain/entities/plans/Plan';
-import { PlanCreateProps, PlanPrimitives } from '../../../domain/entities/plans/Plan';
-import { PlanRepository } from '../../../application/ports/plan.repository';
-import { PlanId } from '../../../domain/shared/PlanId';
+import { Plan } from '../../../../domain/entities/plans/Plan';
+import { PlanCreateProps, PlanPrimitives } from '../../../../domain/entities/plans/Plan';
+import { PlanRepository } from '../../../../application/ports/plan.repository';
+import { PlanId } from '../../../../domain/shared/PlanId';
 
 export class InMemoryPlanRepository implements PlanRepository {
   private readonly storage = new Map<string, PlanPrimitives>();

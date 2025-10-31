@@ -1,7 +1,7 @@
-import { Subscription } from '../../../domain/entities/subscriptions/Subscription';
-import { SubscriptionPrimitives } from '../../../domain/entities/subscriptions/Subscription';
-import { SubscriptionRepository } from '../../../application/ports/subscription.repository';
-import { SubscriptionId } from '../../../domain/shared/SubscriptionId';
+import { Subscription } from '../../../../domain/entities/subscriptions/Subscription';
+import { SubscriptionPrimitives } from '../../../../domain/entities/subscriptions/Subscription';
+import { SubscriptionRepository } from '../../../../application/ports/subscription.repository';
+import { SubscriptionId } from '../../../../domain/shared/SubscriptionId';
 
 export class InMemorySubscriptionRepository implements SubscriptionRepository {
   private readonly storage = new Map<string, SubscriptionPrimitives>();
