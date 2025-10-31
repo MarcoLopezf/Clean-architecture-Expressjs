@@ -1,4 +1,5 @@
 export enum SubscriptionStatusValue {
+  PENDING = 'pending',
   ACTIVE = 'active',
   PAUSED = 'paused',
   CANCELLED = 'cancelled'
@@ -7,6 +8,7 @@ export enum SubscriptionStatusValue {
 export class SubscriptionStatus {
   private constructor(private readonly value: SubscriptionStatusValue) {}
 
+  static readonly PENDING = new SubscriptionStatus(SubscriptionStatusValue.PENDING);
   static readonly ACTIVE = new SubscriptionStatus(SubscriptionStatusValue.ACTIVE);
   static readonly PAUSED = new SubscriptionStatus(SubscriptionStatusValue.PAUSED);
   static readonly CANCELLED = new SubscriptionStatus(

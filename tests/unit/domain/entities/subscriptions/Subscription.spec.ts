@@ -15,21 +15,31 @@ const createPlan = (overrides?: Partial<Parameters<typeof Plan.create>[0]>) =>
     ...overrides
   });
 
-const createSubscription = (overrides?: Partial<Parameters<typeof Subscription.create>[0]>) =>
-  Subscription.create({
+const createSubscription = (
+  overrides?: Partial<Parameters<typeof Subscription.create>[0]>,
+  options?: { autoActivate?: boolean }
+) => {
+  const subscription = Subscription.create({
     id: 'sub-123',
     userId: 'user-456',
     plan: createPlan(),
     ...overrides
   });
 
+  if (options?.autoActivate ?? true) {
+    subscription.activate();
+  }
+
+  return subscription;
+};
+
 describe('Subscription entity', () => {
-  it('creates a subscription defaulting to active status and calculated end date', () => {
-    const subscription = createSubscription();
+  it('creates a subscription defaulting to pending status and calculated end date', () => {
+    const subscription = createSubscription(undefined, { autoActivate: false });
 
     expect(subscription.id).toBe('sub-123');
     expect(subscription.userId).toBe('user-456');
-    expect(subscription.status).toBe(SubscriptionStatusValue.ACTIVE);
+    expect(subscription.status).toBe(SubscriptionStatusValue.PENDING);
     expect(subscription.startDate).toBeInstanceOf(Date);
     expect(subscription.endDate.getTime()).toBeGreaterThan(
       subscription.startDate.getTime()
@@ -59,6 +69,14 @@ describe('Subscription entity', () => {
     );
   });
 
+  it('throws when renewing a pending subscription', () => {
+    const subscription = createSubscription(undefined, { autoActivate: false });
+
+    expect(() => subscription.renew()).toThrowError(
+      'Cannot renew a pending subscription.'
+    );
+  });
+
   it('cancels with effective date and prevents duplicates', () => {
     const subscription = createSubscription();
     const cancellationDate = new Date(subscription.startDate.getTime() + 1000);
@@ -83,6 +101,14 @@ describe('Subscription entity', () => {
 
     subscription.resume();
     expect(subscription.status).toBe(SubscriptionStatusValue.ACTIVE);
+  });
+
+  it('prevents pausing while pending', () => {
+    const subscription = createSubscription(undefined, { autoActivate: false });
+
+    expect(() => subscription.pause()).toThrowError(
+      'Cannot pause a pending subscription.'
+    );
   });
 
   it('changes plan and recalculates billing window', () => {

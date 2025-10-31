@@ -47,7 +47,7 @@ export class Subscription {
 
     Subscription.ensureDates(startDate, endDate);
 
-    return new Subscription({
+    const subscription = new Subscription({
       id,
       userId,
       plan: props.plan,
@@ -55,6 +55,8 @@ export class Subscription {
       startDate,
       endDate
     });
+
+    return subscription;
   }
 
   static fromPrimitives(primitives: SubscriptionPrimitives): Subscription {
@@ -112,6 +114,10 @@ export class Subscription {
     return this.props.status.equals(SubscriptionStatus.ACTIVE);
   }
 
+  isPending(): boolean {
+    return this.props.status.equals(SubscriptionStatus.PENDING);
+  }
+
   isPaused(): boolean {
     return this.props.status.equals(SubscriptionStatus.PAUSED);
   }
@@ -121,6 +127,10 @@ export class Subscription {
   }
 
   renew(effectiveDate?: Date): void {
+    if (this.isPending()) {
+      throw new Error('Cannot renew a pending subscription.');
+    }
+
     if (this.isCancelled()) {
       throw new Error('Cannot renew a cancelled subscription.');
     }
@@ -155,6 +165,10 @@ export class Subscription {
   }
 
   pause(): void {
+    if (this.isPending()) {
+      throw new Error('Cannot pause a pending subscription.');
+    }
+
     if (this.isCancelled()) {
       throw new Error('Cannot pause a cancelled subscription.');
     }
@@ -167,8 +181,25 @@ export class Subscription {
   }
 
   resume(): void {
+    if (this.isPending()) {
+      this.activate();
+      return;
+    }
+
     if (this.isCancelled()) {
       throw new Error('Cannot resume a cancelled subscription.');
+    }
+
+    if (this.isActive()) {
+      return;
+    }
+
+    this.props.status = SubscriptionStatus.ACTIVE;
+  }
+
+  activate(): void {
+    if (this.isCancelled()) {
+      throw new Error('Cannot activate a cancelled subscription.');
     }
 
     if (this.isActive()) {
@@ -214,10 +245,12 @@ export class Subscription {
 
   private static resolveStatus(status?: SubscriptionStatusValue): SubscriptionStatus {
     if (!status) {
-      return SubscriptionStatus.ACTIVE;
+      return SubscriptionStatus.PENDING;
     }
 
     switch (status) {
+      case SubscriptionStatusValue.PENDING:
+        return SubscriptionStatus.PENDING;
       case SubscriptionStatusValue.ACTIVE:
         return SubscriptionStatus.ACTIVE;
       case SubscriptionStatusValue.PAUSED:
