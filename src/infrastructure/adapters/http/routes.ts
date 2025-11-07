@@ -3,8 +3,12 @@ import { SubscriptionsController } from './controllers/SubscriptionsController';
 import { UsersController } from './controllers/UsersController';
 import { PlansController } from './controllers/PlansController';
 import { HttpUseCaseRegistry } from './types';
+import { type LoggerPort } from '../../../application/ports/logger.port';
 
-export const buildRouter = (useCases: HttpUseCaseRegistry): Router => {
+export const buildRouter = (
+  useCases: HttpUseCaseRegistry,
+  logger: LoggerPort
+): Router => {
   const router = express.Router();
 
   const subscriptionsController = new SubscriptionsController(
@@ -12,20 +16,23 @@ export const buildRouter = (useCases: HttpUseCaseRegistry): Router => {
     useCases.renewSubscription,
     useCases.cancelSubscription,
     useCases.pauseSubscription,
-    useCases.resumeSubscription
+    useCases.resumeSubscription,
+    logger.child({ controller: 'SubscriptionsController' })
   );
 
   const usersController = new UsersController(
     useCases.createUser,
     useCases.updateUserProfile,
-    useCases.toggleUserStatus
+    useCases.toggleUserStatus,
+    logger.child({ controller: 'UsersController' })
   );
 
   const plansController = new PlansController(
     useCases.createPlan,
     useCases.updatePlanDetails,
     useCases.updatePlanPrice,
-    useCases.togglePlanStatus
+    useCases.togglePlanStatus,
+    logger.child({ controller: 'PlansController' })
   );
 
   router.post('/subscriptions', subscriptionsController.create);

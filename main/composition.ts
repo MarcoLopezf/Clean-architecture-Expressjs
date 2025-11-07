@@ -19,6 +19,7 @@ import { CreatePlanUseCase } from '../src/application/use-cases/plans/CreatePlan
 import { UpdatePlanDetailsUseCase } from '../src/application/use-cases/plans/UpdatePlanDetailsUseCase';
 import { UpdatePlanPriceUseCase } from '../src/application/use-cases/plans/UpdatePlanPriceUseCase';
 import { TogglePlanStatusUseCase } from '../src/application/use-cases/plans/TogglePlanStatusUseCase';
+import { logger } from '../src/infrastructure/logging/pino-logger';
 
 const planRepository = new InMemoryPlanRepository();
 const userRepository = new InMemoryUserRepository();
@@ -67,5 +68,8 @@ export const infrastructure = {
   subscriptionRepository,
   paymentGateway,
   eventPublisher,
-  idGenerator
+  idGenerator,
+  logger
 };
+
+export { logger };
