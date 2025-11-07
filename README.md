@@ -111,10 +111,10 @@ Base URL: `http://localhost:3000/api`
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | `POST` | `/subscriptions` | Crea suscripción (requiere `userId`, `planId`). |
-| `POST` | `/subscriptions/:id/renew` | Renueva (opcional `effectiveDate`). |
-| `POST` | `/subscriptions/:id/cancel` | Cancela (opcional `effectiveDate`). |
-| `POST` | `/subscriptions/:id/pause` | Pausa suscripción. |
-| `POST` | `/subscriptions/:id/resume` | Resume suscripción. |
+| `PATCH` | `/subscriptions/:id/renew` | Renueva (opcional `effectiveDate`). |
+| `DELETE` | `/subscriptions/:id` | Cancela (opcional `effectiveDate`). |
+| `PATCH` | `/subscriptions/:id/pause` | Pausa suscripción. |
+| `PATCH` | `/subscriptions/:id/resume` | Resume suscripción. |
 
 ### Usuarios
 
@@ -150,6 +150,22 @@ USER_ID=$(curl -s -X POST http://localhost:3000/api/users \
 curl -X POST http://localhost:3000/api/subscriptions \
   -H "Content-Type: application/json" \
   -d "{\"userId\":\"$USER_ID\",\"planId\":\"$PLAN_ID\"}"
+
+# Renovar
+curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/renew \
+  -H "Content-Type: application/json" \
+  -d '{ "effectiveDate": "2025-01-01T00:00:00Z" }'
+
+# Pausar
+curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/pause
+
+# Reanudar
+curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/resume
+
+# Cancelar
+curl -X DELETE http://localhost:3000/api/subscriptions/SUB_ID \
+  -H "Content-Type: application/json" \
+  -d '{ "effectiveDate": "2025-02-01T00:00:00Z" }'
 ```
 
 > Nota: las implementaciones son en memoria, por lo que los datos se reinician al reiniciar el servidor.
