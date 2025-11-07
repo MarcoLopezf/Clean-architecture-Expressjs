@@ -40,8 +40,8 @@ export const buildRouter = (useCases: HttpUseCaseRegistry): Router => {
 
   router.post('/plans', plansController.create);
   router.patch('/plans/:id', plansController.updateDetails);
-  router.post('/plans/:id/price', plansController.updatePrice);
-  router.post('/plans/:id/status', plansController.toggleStatus);
+  router.patch('/plans/:id/price', plansController.updatePrice);
+  router.patch('/plans/:id/status', plansController.toggleStatus);
 
   return router;
 };

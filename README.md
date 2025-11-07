@@ -130,8 +130,8 @@ Base URL: `http://localhost:3000/api`
 |--------|------|-------------|
 | `POST` | `/plans` | Crea plan (name, amount, currency, billingCycle). |
 | `PATCH` | `/plans/:id` | Actualiza nombre/descr. |
-| `POST` | `/plans/:id/price` | Cambia precio (amount, currency). |
-| `POST` | `/plans/:id/status` | Activa/desactiva. |
+| `PATCH` | `/plans/:id/price` | Cambia precio (amount, currency). |
+| `PATCH` | `/plans/:id/status` | Activa/desactiva. |
 
 ### Ejemplos cURL
 
