@@ -29,10 +29,10 @@ export const buildRouter = (useCases: HttpUseCaseRegistry): Router => {
   );
 
   router.post('/subscriptions', subscriptionsController.create);
-  router.post('/subscriptions/:id/renew', subscriptionsController.renew);
-  router.post('/subscriptions/:id/cancel', subscriptionsController.cancel);
-  router.post('/subscriptions/:id/pause', subscriptionsController.pause);
-  router.post('/subscriptions/:id/resume', subscriptionsController.resume);
+  router.patch('/subscriptions/:id/renew', subscriptionsController.renew);
+  router.delete('/subscriptions/:id', subscriptionsController.cancel);
+  router.patch('/subscriptions/:id/pause', subscriptionsController.pause);
+  router.patch('/subscriptions/:id/resume', subscriptionsController.resume);
 
   router.post('/users', usersController.create);
   router.patch('/users/:id', usersController.updateProfile);
