@@ -35,7 +35,7 @@ export const requestLogger = () =>
       const instrumentedReq = req as InstrumentedRequest;
       const headerId = req.headers['x-request-id'];
       const headerValue = Array.isArray(headerId) ? headerId[0] : headerId;
-      return instrumentedReq.id ?? headerValue?.toString();
+      return headerValue?.toString();
     },
     customSuccessMessage: (req, res) => {
       const instrumentedRes = res as InstrumentedResponse;
