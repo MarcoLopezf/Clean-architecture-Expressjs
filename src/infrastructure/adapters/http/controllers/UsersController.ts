@@ -55,9 +55,14 @@ export class UsersController {
   toggleStatus = async (req: Request, res: Response, next: NextFunction) => {
     const log = this.childLogger('toggleStatus', req);
     try {
+      const rawStatus = req.body?.isActive;
+      if (typeof rawStatus !== 'boolean') {
+        throw new Error('Field "isActive" must be provided as a boolean value.');
+      }
+
       const dto: ToggleUserStatusRequestDto = {
         userId: req.params.id,
-        isActive: Boolean(req.body?.isActive)
+        isActive: rawStatus
       };
       const result = await this.toggleUserStatus.execute(dto);
       log.info('User status toggled', {
