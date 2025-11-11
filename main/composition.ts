@@ -1,11 +1,5 @@
-import { InMemoryPlanRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryPlanRepository';
-import { InMemorySubscriptionRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemorySubscriptionRepository';
-import { InMemoryUserRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryUserRepository';
-import { InMemoryEventPublisher } from '../src/infrastructure/adapters/gateways/InMemoryEventPublisher';
-import { InMemoryPaymentGateway } from '../src/infrastructure/adapters/gateways/InMemoryPaymentGateway';
-import { TypeOrmPlanRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmPlanRepository';
-import { TypeOrmSubscriptionRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmSubscriptionRepository';
-import { TypeOrmUserRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmUserRepository';
+import type { DataSource } from 'typeorm';
+
 import { CreatePlanUseCase } from '../src/application/use-cases/plans/CreatePlanUseCase';
 import { TogglePlanStatusUseCase } from '../src/application/use-cases/plans/TogglePlanStatusUseCase';
 import { UpdatePlanDetailsUseCase } from '../src/application/use-cases/plans/UpdatePlanDetailsUseCase';
@@ -21,9 +15,18 @@ import { UpdateUserProfileUseCase } from '../src/application/use-cases/users/Upd
 import type { PlanRepository } from '../src/application/ports/plan.repository';
 import type { SubscriptionRepository } from '../src/application/ports/subscription.repository';
 import type { UserRepository } from '../src/application/ports/user.repository';
-import { UuidIdGenerator } from '../src/infrastructure/id/UuidIdGenerator';
+import type { LoggerPort } from '../src/application/ports/logger.port';
+import { InMemoryEventPublisher } from '../src/infrastructure/adapters/gateways/InMemoryEventPublisher';
+import { InMemoryPaymentGateway } from '../src/infrastructure/adapters/gateways/InMemoryPaymentGateway';
+import { InMemoryPlanRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryPlanRepository';
+import { InMemorySubscriptionRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemorySubscriptionRepository';
+import { InMemoryUserRepository } from '../src/infrastructure/adapters/persistence/in-memory/InMemoryUserRepository';
+import { TypeOrmPlanRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmPlanRepository';
+import { TypeOrmSubscriptionRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmSubscriptionRepository';
+import { TypeOrmUserRepository } from '../src/infrastructure/adapters/persistence/typeorm/TypeOrmUserRepository';
 import { AppDataSource } from '../src/infrastructure/database/data-source';
-import type { DataSource } from 'typeorm';
+import { logger } from '../src/infrastructure/logging/pino-logger';
+import { UuidIdGenerator } from '../src/infrastructure/id/UuidIdGenerator';
 
 export interface UseCaseRegistry {
   createSubscription: CreateSubscriptionUseCase;
@@ -49,6 +52,7 @@ export interface Composition {
     paymentGateway: InMemoryPaymentGateway;
     eventPublisher: InMemoryEventPublisher;
     idGenerator: UuidIdGenerator;
+    logger: LoggerPort;
     dataSource?: DataSource;
   };
 }
@@ -117,7 +121,8 @@ const buildComposition = (repositories: RepositoryBundle): Composition => {
       ...repositories,
       paymentGateway,
       eventPublisher,
-      idGenerator
+      idGenerator,
+      logger
     }
   };
 };
