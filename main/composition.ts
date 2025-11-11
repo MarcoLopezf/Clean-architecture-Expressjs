@@ -4,14 +4,20 @@ import { CreatePlanUseCase } from '../src/application/use-cases/plans/CreatePlan
 import { TogglePlanStatusUseCase } from '../src/application/use-cases/plans/TogglePlanStatusUseCase';
 import { UpdatePlanDetailsUseCase } from '../src/application/use-cases/plans/UpdatePlanDetailsUseCase';
 import { UpdatePlanPriceUseCase } from '../src/application/use-cases/plans/UpdatePlanPriceUseCase';
+import { ListPlansUseCase } from '../src/application/use-cases/plans/ListPlansUseCase';
+import { GetPlanByIdUseCase } from '../src/application/use-cases/plans/GetPlanByIdUseCase';
 import { CancelSubscriptionUseCase } from '../src/application/use-cases/subscriptions/CancelSubscriptionUseCase';
 import { CreateSubscriptionUseCase } from '../src/application/use-cases/subscriptions/CreateSubscriptionUseCase';
 import { PauseSubscriptionUseCase } from '../src/application/use-cases/subscriptions/PauseSubscriptionUseCase';
 import { RenewSubscriptionUseCase } from '../src/application/use-cases/subscriptions/RenewSubscriptionUseCase';
 import { ResumeSubscriptionUseCase } from '../src/application/use-cases/subscriptions/ResumeSubscriptionUseCase';
+import { ListSubscriptionsUseCase } from '../src/application/use-cases/subscriptions/ListSubscriptionsUseCase';
+import { GetSubscriptionByIdUseCase } from '../src/application/use-cases/subscriptions/GetSubscriptionByIdUseCase';
 import { CreateUserUseCase } from '../src/application/use-cases/users/CreateUserUseCase';
 import { ToggleUserStatusUseCase } from '../src/application/use-cases/users/ToggleUserStatusUseCase';
 import { UpdateUserProfileUseCase } from '../src/application/use-cases/users/UpdateUserProfileUseCase';
+import { ListUsersUseCase } from '../src/application/use-cases/users/ListUsersUseCase';
+import { GetUserByIdUseCase } from '../src/application/use-cases/users/GetUserByIdUseCase';
 import type { PlanRepository } from '../src/application/ports/plan.repository';
 import type { SubscriptionRepository } from '../src/application/ports/subscription.repository';
 import type { UserRepository } from '../src/application/ports/user.repository';
@@ -34,13 +40,19 @@ export interface UseCaseRegistry {
   cancelSubscription: CancelSubscriptionUseCase;
   pauseSubscription: PauseSubscriptionUseCase;
   resumeSubscription: ResumeSubscriptionUseCase;
+  listSubscriptions: ListSubscriptionsUseCase;
+  getSubscriptionById: GetSubscriptionByIdUseCase;
   createUser: CreateUserUseCase;
   updateUserProfile: UpdateUserProfileUseCase;
   toggleUserStatus: ToggleUserStatusUseCase;
+  listUsers: ListUsersUseCase;
+  getUserById: GetUserByIdUseCase;
   createPlan: CreatePlanUseCase;
   updatePlanDetails: UpdatePlanDetailsUseCase;
   updatePlanPrice: UpdatePlanPriceUseCase;
   togglePlanStatus: TogglePlanStatusUseCase;
+  listPlans: ListPlansUseCase;
+  getPlanById: GetPlanByIdUseCase;
 }
 
 export interface Composition {
@@ -106,13 +118,23 @@ const buildComposition = (repositories: RepositoryBundle): Composition => {
       repositories.subscriptionRepository,
       eventPublisher
     ),
+    listSubscriptions: new ListSubscriptionsUseCase(
+      repositories.subscriptionRepository
+    ),
+    getSubscriptionById: new GetSubscriptionByIdUseCase(
+      repositories.subscriptionRepository
+    ),
     createUser: new CreateUserUseCase(repositories.userRepository, idGenerator),
     updateUserProfile: new UpdateUserProfileUseCase(repositories.userRepository),
     toggleUserStatus: new ToggleUserStatusUseCase(repositories.userRepository),
+    listUsers: new ListUsersUseCase(repositories.userRepository),
+    getUserById: new GetUserByIdUseCase(repositories.userRepository),
     createPlan: new CreatePlanUseCase(repositories.planRepository, idGenerator),
     updatePlanDetails: new UpdatePlanDetailsUseCase(repositories.planRepository),
     updatePlanPrice: new UpdatePlanPriceUseCase(repositories.planRepository),
-    togglePlanStatus: new TogglePlanStatusUseCase(repositories.planRepository)
+    togglePlanStatus: new TogglePlanStatusUseCase(repositories.planRepository),
+    listPlans: new ListPlansUseCase(repositories.planRepository),
+    getPlanById: new GetPlanByIdUseCase(repositories.planRepository)
   };
 
   return {

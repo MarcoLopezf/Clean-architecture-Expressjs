@@ -17,6 +17,8 @@ export const buildRouter = (
     useCases.cancelSubscription,
     useCases.pauseSubscription,
     useCases.resumeSubscription,
+    useCases.listSubscriptions,
+    useCases.getSubscriptionById,
     logger.child({ controller: 'SubscriptionsController' })
   );
 
@@ -24,6 +26,8 @@ export const buildRouter = (
     useCases.createUser,
     useCases.updateUserProfile,
     useCases.toggleUserStatus,
+    useCases.listUsers,
+    useCases.getUserById,
     logger.child({ controller: 'UsersController' })
   );
 
@@ -32,19 +36,27 @@ export const buildRouter = (
     useCases.updatePlanDetails,
     useCases.updatePlanPrice,
     useCases.togglePlanStatus,
+    useCases.listPlans,
+    useCases.getPlanById,
     logger.child({ controller: 'PlansController' })
   );
 
+  router.get('/subscriptions', subscriptionsController.list);
+  router.get('/subscriptions/:id', subscriptionsController.getById);
   router.post('/subscriptions', subscriptionsController.create);
   router.patch('/subscriptions/:id/renew', subscriptionsController.renew);
   router.delete('/subscriptions/:id', subscriptionsController.cancel);
   router.patch('/subscriptions/:id/pause', subscriptionsController.pause);
   router.patch('/subscriptions/:id/resume', subscriptionsController.resume);
 
+  router.get('/users', usersController.list);
+  router.get('/users/:id', usersController.getById);
   router.post('/users', usersController.create);
   router.patch('/users/:id', usersController.updateProfile);
   router.post('/users/:id/status', usersController.toggleStatus);
 
+  router.get('/plans', plansController.list);
+  router.get('/plans/:id', plansController.getById);
   router.post('/plans', plansController.create);
   router.patch('/plans/:id', plansController.updateDetails);
   router.patch('/plans/:id/price', plansController.updatePrice);

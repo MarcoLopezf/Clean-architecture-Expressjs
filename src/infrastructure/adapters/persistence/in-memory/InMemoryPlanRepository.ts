@@ -17,6 +17,12 @@ export class InMemoryPlanRepository implements PlanRepository {
     return plan ? Plan.fromPrimitives(plan) : null;
   }
 
+  async findAll(): Promise<Plan[]> {
+    return Array.from(this.storage.values()).map((plan) =>
+      Plan.fromPrimitives(plan)
+    );
+  }
+
   async save(plan: Plan): Promise<void> {
     this.storage.set(plan.id, plan.toPrimitives());
   }

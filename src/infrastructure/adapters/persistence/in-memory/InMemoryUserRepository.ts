@@ -24,6 +24,12 @@ export class InMemoryUserRepository implements UserRepository {
     return entry ? User.fromPrimitives(entry) : null;
   }
 
+  async findAll(): Promise<User[]> {
+    return Array.from(this.storage.values()).map((user) =>
+      User.fromPrimitives(user)
+    );
+  }
+
   async save(user: User): Promise<void> {
     this.storage.set(user.id, user.toPrimitives());
   }

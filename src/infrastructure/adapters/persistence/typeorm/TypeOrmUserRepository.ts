@@ -22,6 +22,11 @@ export class TypeOrmUserRepository implements UserRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
+  async findAll(): Promise<User[]> {
+    const entities = await this.userRepo.find();
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
   async save(user: User): Promise<void> {
     await this.persist(user.toPrimitives());
   }

@@ -17,6 +17,12 @@ export class InMemorySubscriptionRepository implements SubscriptionRepository {
     return subscription ? Subscription.fromPrimitives(subscription) : null;
   }
 
+  async findAll(): Promise<Subscription[]> {
+    return Array.from(this.storage.values()).map((subscription) =>
+      Subscription.fromPrimitives(subscription)
+    );
+  }
+
   async save(subscription: Subscription): Promise<void> {
     this.storage.set(subscription.id, subscription.toPrimitives());
   }

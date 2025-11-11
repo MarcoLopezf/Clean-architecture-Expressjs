@@ -7,6 +7,8 @@ import {
 import { CreateUserUseCase } from '../../../../application/use-cases/users/CreateUserUseCase';
 import { UpdateUserProfileUseCase } from '../../../../application/use-cases/users/UpdateUserProfileUseCase';
 import { ToggleUserStatusUseCase } from '../../../../application/use-cases/users/ToggleUserStatusUseCase';
+import { ListUsersUseCase } from '../../../../application/use-cases/users/ListUsersUseCase';
+import { GetUserByIdUseCase } from '../../../../application/use-cases/users/GetUserByIdUseCase';
 import {
   type LoggerMetadata,
   type LoggerPort
@@ -19,8 +21,34 @@ export class UsersController {
     private readonly createUser: CreateUserUseCase,
     private readonly updateUserProfile: UpdateUserProfileUseCase,
     private readonly toggleUserStatus: ToggleUserStatusUseCase,
+    private readonly listUsers: ListUsersUseCase,
+    private readonly getUserById: GetUserByIdUseCase,
     private readonly logger: LoggerPort
   ) {}
+
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('list', req);
+    try {
+      const users = await this.listUsers.execute();
+      log.info('Users listed', { count: users.length });
+      res.json({ users });
+    } catch (error) {
+      log.error('Failed to list users', { error });
+      next(error);
+    }
+  };
+
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('getById', req);
+    try {
+      const user = await this.getUserById.execute(req.params.id);
+      log.info('User retrieved', { userId: user.id });
+      res.json({ user });
+    } catch (error) {
+      log.error('Failed to get user', { error });
+      next(error);
+    }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     const log = this.childLogger('create', req);
