@@ -9,7 +9,11 @@
     "start": "npm run dev",
     "dev": "ts-node main/server.ts",
     "dev:composition": "ts-node main/composition.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:run": "npm run typeorm -- migration:run -d src/infrastructure/database/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/infrastructure/database/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/infrastructure/database/data-source.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +28,9 @@
   },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.27"
   }
 }

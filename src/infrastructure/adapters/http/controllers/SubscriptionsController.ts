@@ -23,7 +23,10 @@ export class SubscriptionsController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto: CreateSubscriptionRequestDto = req.body;
+      const dto: CreateSubscriptionRequestDto = {
+        ...req.body,
+        startDate: req.body?.startDate ? new Date(req.body.startDate) : undefined
+      };
       const result = await this.createSubscription.execute(dto);
       res.status(201).json(result);
     } catch (error) {

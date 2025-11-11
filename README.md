@@ -47,42 +47,70 @@ Casos de pago extra (registro manual) pueden añadirse reutilizando `Payment` y 
 
 ### Infraestructura actual
 
-Implementaciones in-memory útiles para desarrollo y pruebas:
+### Persistencia y adaptadores
 
-- Persistencia: `InMemoryPlanRepository`, `InMemoryUserRepository`, `InMemorySubscriptionRepository` (`src/infrastructure/adapters/persistence/in-memory`).
-- Gateway de pagos simulado: `InMemoryPaymentGateway`.
-- Publicador de eventos: `InMemoryEventPublisher` (almacena eventos en memoria para inspección).
-- Generador de IDs: `UuidIdGenerator` (usa `crypto.randomUUID`).
-- HTTP: Express con controladores (`SubscriptionsController`, `UsersController`, `PlansController`) y router `buildRouter` (`src/infrastructure/adapters/http`).
+Actualmente existen dos familias de adaptadores que implementan los mismos puertos:
 
-Todos los adaptadores usan los puertos de aplicación y devuelven entidades rehidratadas desde snapshots (`toPrimitives` / `fromPrimitives`).
+| Puerto | In-memory | PostgreSQL (TypeORM) | Ubicación |
+|--------|-----------|----------------------|-----------|
+| `PlanRepository` | `InMemoryPlanRepository` | `TypeOrmPlanRepository` | `src/infrastructure/adapters/persistence/*` |
+| `UserRepository` | `InMemoryUserRepository` | `TypeOrmUserRepository` | idem |
+| `SubscriptionRepository` | `InMemorySubscriptionRepository` | `TypeOrmSubscriptionRepository` | idem |
+| `PaymentGateway` | `InMemoryPaymentGateway` | *(stub actual)* | `src/infrastructure/adapters/gateways` |
+| `EventPublisher` | `InMemoryEventPublisher` | *(stub actual)* | `src/infrastructure/adapters/gateways` |
 
----
+Los repositorios TypeORM apuntan al esquema PostgreSQL definido en `src/infrastructure/database` (entidades + migraciones). Puedes seleccionar qué implementación usar poniendo `PERSISTENCE=memory` (default) o `PERSISTENCE=typeorm`.
 
-## 🚀 Entrada (Composition Root)
-
-- `main/composition.ts`: crea instancias de repositorios/gateways, genera un objeto `useCases` y expone `infrastructure` (útil en tests o CLI).
-- `main/server.ts`: importa `useCases`, construye router y servidor Express (`createServer`) y lo arranca en `PORT` (default 3000).
-
-```bash
-npm run dev      # lanza HTTP server
-npm run dev:composition  # ejecuta composition root (debug/manual)
-```
+HTTP sigue siendo Express (`src/infrastructure/adapters/http`). Cada controlador mapea JSON ↔ DTOs before delegar a los casos de uso.
 
 ---
 
-## 📦 Dependencias
+## ⚙️ Configuración local
 
-- `express` + `@types/express` (adaptador HTTP).
-- `dotenv` (listo para configurar variables de entorno si se necesita).
-- `ts-node`, `typescript`.
-- `vitest` para pruebas unitarias.
+1. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
+2. **Variables de entorno**
+   ```bash
+   cp .env.example .env
+   ```
+   Ajusta `DATABASE_*`, `DATABASE_URL`, `PORT` y `PERSISTENCE` según tu entorno.
+3. **Levantar PostgreSQL con Docker**
+   ```bash
+   docker compose up -d postgres
+   ```
+   El servicio usa la imagen oficial `postgres:16-alpine`, expone el puerto `5432` y persiste datos en `postgres_data`.
+4. **Migraciones TypeORM**
+   ```bash
+   npm run migration:run
+   ```
+5. **Arrancar el servidor**
+   ```bash
+   PERSISTENCE=typeorm npm run dev   # usa Postgres real
+   # o
+   npm run dev                       # modo in-memory
+   ```
 
-Instala todo con:
+> El composition root (`main/composition.ts`) inicializa los repositorios adecuados según `PERSISTENCE`. `main/server.ts` lo invoca antes de montar Express.
 
-```bash
-npm install
-```
+### Scripts disponibles
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Levanta el HTTP server (usa `PERSISTENCE` del entorno). |
+| `npm run dev:composition` | Ejecuta el composition root manualmente. |
+| `npm run migration:run` | Aplica las migraciones configuradas. |
+| `npm run migration:revert` | Revierte la última migración. |
+| `npm run migration:generate -- --name <Nombre>` | Genera una nueva migración basada en las entidades. |
+
+---
+
+## 📦 Dependencias principales
+
+- **Servidor / utilidades**: `express`, `dotenv`, `reflect-metadata`.
+- **Persistencia**: `typeorm`, `pg`.
+- **Tooling**: `ts-node`, `typescript`, `vitest`.
 
 ---
 
@@ -168,7 +196,7 @@ curl -X DELETE http://localhost:3000/api/subscriptions/SUB_ID \
   -d '{ "effectiveDate": "2025-02-01T00:00:00Z" }'
 ```
 
-> Nota: las implementaciones son en memoria, por lo que los datos se reinician al reiniciar el servidor.
+> Nota: si usas `PERSISTENCE=memory`, los datos se pierden al reiniciar. Con `PERSISTENCE=typeorm` quedan guardados en PostgreSQL.
 
 ---
 
@@ -184,10 +212,10 @@ curl -X DELETE http://localhost:3000/api/subscriptions/SUB_ID \
 
 ## 🤝 Contribuir
 
-1. Crea branch a partir de `main`/`infrastructure` según corresponda.
-2. Sigue las reglas de Clean Architecture (no mezclar dependencias innecesarias).
+1. Crea una branch desde `main`.
+2. Respeta la dirección de dependencias (Infra → App → Domain) y mantén los adapters aislados.
 3. Agrega/actualiza pruebas con `vitest`.
-4. Ejecuta `npm test` antes de abrir PR.
-5. Documenta cualquier nuevo adaptador o caso de uso en este README.
+4. Ejecuta `npm test` y, si tocaste DB, `npm run migration:run` para validar.
+5. Documenta nuevos adaptadores o decisiones (README principal o de cada carpeta).
 
 ¡Listo! Ya puedes explorar, extender o integrar este sistema de suscripciones. ✨

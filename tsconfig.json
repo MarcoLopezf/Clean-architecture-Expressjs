@@ -11,7 +11,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "types": ["node", "express"]
+    "types": ["node", "express"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src", "main", "tests"],
   "exclude": ["node_modules", "dist"]
