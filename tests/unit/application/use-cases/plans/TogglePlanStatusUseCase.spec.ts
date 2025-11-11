@@ -15,7 +15,8 @@ const setup = () => {
   const planRepo: PlanRepository = {
     findById: vi.fn().mockResolvedValue(existingPlan),
     save: vi.fn(),
-    update: vi.fn().mockResolvedValue(undefined)
+    update: vi.fn().mockResolvedValue(undefined),
+    findAll: vi.fn()
   };
 
   const useCase = new TogglePlanStatusUseCase(planRepo);

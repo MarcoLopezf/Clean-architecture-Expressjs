@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { UpdatePlanPriceUseCase } from '../../../../../src/application/use-cases/plans/UpdatePlanPriceUseCase';
+import { GetPlanByIdUseCase } from '../../../../../src/application/use-cases/plans/GetPlanByIdUseCase';
 import { PlanRepository } from '../../../../../src/application/ports/plan.repository';
 import { Plan } from '../../../../../src/domain/entities/plans/Plan';
 
@@ -15,36 +15,30 @@ const setup = () => {
   const planRepo: PlanRepository = {
     findById: vi.fn().mockResolvedValue(existingPlan),
     save: vi.fn(),
-    update: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn(),
     findAll: vi.fn()
   };
 
-  const useCase = new UpdatePlanPriceUseCase(planRepo);
+  const useCase = new GetPlanByIdUseCase(planRepo);
 
   return { useCase, planRepo };
 };
 
-describe('UpdatePlanPriceUseCase', () => {
-  it('updates plan price', async () => {
+describe('GetPlanByIdUseCase', () => {
+  it('returns the plan DTO when found', async () => {
     const { useCase, planRepo } = setup();
 
-    const result = await useCase.execute({
-      planId: 'plan-1',
-      amount: 20,
-      currency: 'EUR'
-    });
+    const result = await useCase.execute('plan-1');
 
-    expect(planRepo.update).toHaveBeenCalled();
-    expect(result.amount).toBe(20);
-    expect(result.currency).toBe('EUR');
+    expect(planRepo.findById).toHaveBeenCalled();
+    expect(result.id).toBe('plan-1');
+    expect(result.amount).toBe(10);
   });
 
-  it('throws when plan not found', async () => {
+  it('throws when the plan does not exist', async () => {
     const { useCase, planRepo } = setup();
     (planRepo.findById as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
 
-    await expect(
-      useCase.execute({ planId: 'missing', amount: 15, currency: 'USD' })
-    ).rejects.toThrow('Plan not found');
+    await expect(useCase.execute('missing')).rejects.toThrow('Plan not found');
   });
 });

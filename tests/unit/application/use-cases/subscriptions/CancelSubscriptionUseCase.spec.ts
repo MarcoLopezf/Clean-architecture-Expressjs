@@ -28,7 +28,8 @@ const setup = () => {
   const subscriptionRepo: SubscriptionRepository = {
     findById: vi.fn().mockResolvedValue(subscription),
     save: vi.fn(),
-    update: vi.fn().mockResolvedValue(undefined)
+    update: vi.fn().mockResolvedValue(undefined),
+    findAll: vi.fn()
   };
 
   const eventPublisher: EventPublisher = {
