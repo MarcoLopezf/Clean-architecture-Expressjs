@@ -31,20 +31,23 @@ describe('CreateSubscriptionUseCase', () => {
     const subscriptionRepo: SubscriptionRepository = {
       findById: vi.fn(),
       save: vi.fn().mockResolvedValue(undefined),
-      update: vi.fn().mockResolvedValue(undefined)
+      update: vi.fn().mockResolvedValue(undefined),
+      findAll: vi.fn()
     };
 
     const planRepo: PlanRepository = {
       findById: vi.fn().mockResolvedValue(plan),
       save: vi.fn(),
-      update: vi.fn()
+      update: vi.fn(),
+      findAll: vi.fn()
     };
 
     const userRepo: UserRepository = {
       findById: vi.fn().mockResolvedValue(user),
       findByEmail: vi.fn(),
       save: vi.fn(),
-      update: vi.fn()
+      update: vi.fn(),
+      findAll: vi.fn()
     };
 
     const paymentGateway: PaymentGateway = {

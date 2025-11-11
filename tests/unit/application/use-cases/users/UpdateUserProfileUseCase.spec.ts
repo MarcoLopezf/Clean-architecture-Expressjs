@@ -14,7 +14,8 @@ const setup = () => {
     findById: vi.fn().mockResolvedValue(existingUser),
     findByEmail: vi.fn().mockResolvedValue(null),
     save: vi.fn(),
-    update: vi.fn().mockResolvedValue(undefined)
+    update: vi.fn().mockResolvedValue(undefined),
+    findAll: vi.fn()
   };
 
   const useCase = new UpdateUserProfileUseCase(userRepo);

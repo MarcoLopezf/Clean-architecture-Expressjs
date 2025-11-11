@@ -7,7 +7,8 @@ const setup = () => {
   const planRepo: PlanRepository = {
     findById: vi.fn(),
     save: vi.fn().mockResolvedValue(undefined),
-    update: vi.fn()
+    update: vi.fn(),
+    findAll: vi.fn()
   };
 
   const idGenerator: IdGenerator = {

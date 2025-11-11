@@ -8,7 +8,8 @@ const setup = () => {
     findById: vi.fn(),
     findByEmail: vi.fn().mockResolvedValue(null),
     save: vi.fn().mockResolvedValue(undefined),
-    update: vi.fn()
+    update: vi.fn(),
+    findAll: vi.fn()
   };
 
   const idGenerator: IdGenerator = {
