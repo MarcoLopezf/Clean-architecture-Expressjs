@@ -60,7 +60,7 @@ Two interchangeable families implementing the same ports:
 
 TypeORM repositories target the PostgreSQL schema in `src/infrastructure/database` (entities + migrations). Choose the implementation via `PERSISTENCE=memory` (default) or `PERSISTENCE=typeorm`.
 
-HTTP still uses Express (`src/infrastructure/adapters/http`). Controllers translate JSON ↔ DTOs before delegating to use cases.
+HTTP still uses Express (`src/infrastructure/adapters/http`). Controllers map JSON ↔ DTOs before delegating to use cases.
 
 ---
 
