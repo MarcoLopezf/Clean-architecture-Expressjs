@@ -42,7 +42,7 @@ Dependencies always point inward (Infra → Application → Domain). No circular
 - `UpdatePlanDetailsUseCase` (name/description).
 - `UpdatePlanPriceUseCase`.
 - `TogglePlanStatusUseCase`.
-- Additional payment-flavored cases can reuse `Payment` and `PaymentGateway` when needed.
+- Additional payment-related use cases can reuse `Payment` and `PaymentGateway` when needed.
 
 ### Infrastructure Adapters
 
