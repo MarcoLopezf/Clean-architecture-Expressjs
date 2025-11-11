@@ -53,8 +53,8 @@ Two interchangeable families implementing the same ports:
 | Port | In-memory | PostgreSQL (TypeORM) | Location |
 |------|-----------|----------------------|----------|
 | `PlanRepository` | `InMemoryPlanRepository` | `TypeOrmPlanRepository` | `src/infrastructure/adapters/persistence/*` |
-| `UserRepository` | `InMemoryUserRepository` | `TypeOrmUserRepository` | idem |
-| `SubscriptionRepository` | `InMemorySubscriptionRepository` | `TypeOrmSubscriptionRepository` | idem |
+| `UserRepository` | `InMemoryUserRepository` | `TypeOrmUserRepository` | `src/infrastructure/adapters/persistence/*` |
+| `SubscriptionRepository` | `InMemorySubscriptionRepository` | `TypeOrmSubscriptionRepository` | `src/infrastructure/adapters/persistence/*` |
 | `PaymentGateway` | `InMemoryPaymentGateway` | *(stub for now)* | `src/infrastructure/adapters/gateways` |
 | `EventPublisher` | `InMemoryEventPublisher` | *(stub for now)* | `src/infrastructure/adapters/gateways` |
 
