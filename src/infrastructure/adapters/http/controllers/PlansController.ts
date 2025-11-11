@@ -9,6 +9,8 @@ import { CreatePlanUseCase } from '../../../../application/use-cases/plans/Creat
 import { UpdatePlanDetailsUseCase } from '../../../../application/use-cases/plans/UpdatePlanDetailsUseCase';
 import { UpdatePlanPriceUseCase } from '../../../../application/use-cases/plans/UpdatePlanPriceUseCase';
 import { TogglePlanStatusUseCase } from '../../../../application/use-cases/plans/TogglePlanStatusUseCase';
+import { ListPlansUseCase } from '../../../../application/use-cases/plans/ListPlansUseCase';
+import { GetPlanByIdUseCase } from '../../../../application/use-cases/plans/GetPlanByIdUseCase';
 import {
   type LoggerMetadata,
   type LoggerPort
@@ -22,8 +24,34 @@ export class PlansController {
     private readonly updatePlanDetails: UpdatePlanDetailsUseCase,
     private readonly updatePlanPrice: UpdatePlanPriceUseCase,
     private readonly togglePlanStatus: TogglePlanStatusUseCase,
+    private readonly listPlans: ListPlansUseCase,
+    private readonly getPlanById: GetPlanByIdUseCase,
     private readonly logger: LoggerPort
   ) {}
+
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('list', req);
+    try {
+      const plans = await this.listPlans.execute();
+      log.info('Plans listed', { count: plans.length });
+      res.json({ plans });
+    } catch (error) {
+      log.error('Failed to list plans', { error });
+      next(error);
+    }
+  };
+
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('getById', req);
+    try {
+      const plan = await this.getPlanById.execute(req.params.id);
+      log.info('Plan retrieved', { planId: plan.id });
+      res.json({ plan });
+    } catch (error) {
+      log.error('Failed to get plan', { error });
+      next(error);
+    }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     const log = this.childLogger('create', req);

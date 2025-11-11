@@ -39,6 +39,20 @@ export class TypeOrmSubscriptionRepository implements SubscriptionRepository {
     return this.toDomain(entity);
   }
 
+  async findAll(): Promise<Subscription[]> {
+    const entities = await this.subscriptionRepo.find({
+      relations: {
+        user: true,
+        plan: {
+          defaultPrice: true
+        },
+        planPrice: true
+      }
+    });
+
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
   async save(subscription: Subscription): Promise<void> {
     await this.persist(subscription.toPrimitives());
   }

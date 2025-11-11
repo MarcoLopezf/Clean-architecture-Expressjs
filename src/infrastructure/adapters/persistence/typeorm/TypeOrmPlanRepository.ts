@@ -24,22 +24,23 @@ export class TypeOrmPlanRepository implements PlanRepository {
       }
     });
 
-    if (!plan || !plan.defaultPrice) {
+    if (!plan) {
       return null;
     }
 
-    return Plan.fromPrimitives({
-      id: plan.id,
-      name: plan.name,
-      description: plan.description ?? undefined,
-      amount: Number(plan.defaultPrice.amount),
-      currency: plan.defaultPrice.currency,
-      billingCycleUnit: plan.defaultPrice.billingCycleUnit,
-      billingCycleInterval: plan.defaultPrice.billingCycleInterval,
-      isActive: plan.isActive,
-      createdAt: plan.createdAt,
-      updatedAt: plan.updatedAt
+    return this.toDomain(plan);
+  }
+
+  async findAll(): Promise<Plan[]> {
+    const plans = await this.planRepo.find({
+      relations: {
+        defaultPrice: true
+      }
     });
+
+    return plans
+      .map((plan) => this.toDomain(plan))
+      .filter((plan): plan is Plan => plan != null);
   }
 
   async save(plan: Plan): Promise<void> {
@@ -98,6 +99,25 @@ export class TypeOrmPlanRepository implements PlanRepository {
           defaultPrice: priceRepository.create({ id: priceEntity.id })
         });
       }
+    });
+  }
+
+  private toDomain(plan: PlanEntity): Plan | null {
+    if (!plan.defaultPrice) {
+      return null;
+    }
+
+    return Plan.fromPrimitives({
+      id: plan.id,
+      name: plan.name,
+      description: plan.description ?? undefined,
+      amount: Number(plan.defaultPrice.amount),
+      currency: plan.defaultPrice.currency,
+      billingCycleUnit: plan.defaultPrice.billingCycleUnit,
+      billingCycleInterval: plan.defaultPrice.billingCycleInterval,
+      isActive: plan.isActive,
+      createdAt: plan.createdAt,
+      updatedAt: plan.updatedAt
     });
   }
 }

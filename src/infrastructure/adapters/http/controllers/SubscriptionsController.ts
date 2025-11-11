@@ -11,6 +11,8 @@ import { RenewSubscriptionUseCase } from '../../../../application/use-cases/subs
 import { CancelSubscriptionUseCase } from '../../../../application/use-cases/subscriptions/CancelSubscriptionUseCase';
 import { PauseSubscriptionUseCase } from '../../../../application/use-cases/subscriptions/PauseSubscriptionUseCase';
 import { ResumeSubscriptionUseCase } from '../../../../application/use-cases/subscriptions/ResumeSubscriptionUseCase';
+import { ListSubscriptionsUseCase } from '../../../../application/use-cases/subscriptions/ListSubscriptionsUseCase';
+import { GetSubscriptionByIdUseCase } from '../../../../application/use-cases/subscriptions/GetSubscriptionByIdUseCase';
 import {
   type LoggerMetadata,
   type LoggerPort
@@ -25,8 +27,34 @@ export class SubscriptionsController {
     private readonly cancelSubscription: CancelSubscriptionUseCase,
     private readonly pauseSubscription: PauseSubscriptionUseCase,
     private readonly resumeSubscription: ResumeSubscriptionUseCase,
+    private readonly listSubscriptions: ListSubscriptionsUseCase,
+    private readonly getSubscriptionById: GetSubscriptionByIdUseCase,
     private readonly logger: LoggerPort
   ) {}
+
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('list', req);
+    try {
+      const subscriptions = await this.listSubscriptions.execute();
+      log.info('Subscriptions listed', { count: subscriptions.length });
+      res.json({ subscriptions });
+    } catch (error) {
+      log.error('Failed to list subscriptions', { error });
+      next(error);
+    }
+  };
+
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    const log = this.childLogger('getById', req);
+    try {
+      const subscription = await this.getSubscriptionById.execute(req.params.id);
+      log.info('Subscription retrieved', { subscriptionId: subscription.id });
+      res.json({ subscription });
+    } catch (error) {
+      log.error('Failed to get subscription', { error });
+      next(error);
+    }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     const log = this.childLogger('create', req);

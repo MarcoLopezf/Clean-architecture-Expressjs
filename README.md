@@ -132,12 +132,14 @@ Cobertura cubre:
 
 ## 🌐 API HTTP
 
-Base URL: `http://localhost:3000/api`
+Base URL: `{{API_URL}}`
 
 ### Suscripciones
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
+| `GET` | `/subscriptions` | Lista todas las suscripciones. |
+| `GET` | `/subscriptions/:id` | Obtiene una suscripción por ID. |
 | `POST` | `/subscriptions` | Crea suscripción (requiere `userId`, `planId`). |
 | `PATCH` | `/subscriptions/:id/renew` | Renueva (opcional `effectiveDate`). |
 | `DELETE` | `/subscriptions/:id` | Cancela (opcional `effectiveDate`). |
@@ -148,6 +150,8 @@ Base URL: `http://localhost:3000/api`
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
+| `GET` | `/users` | Lista todos los usuarios. |
+| `GET` | `/users/:id` | Obtiene un usuario por ID. |
 | `POST` | `/users` | Crea usuario (email, name). |
 | `PATCH` | `/users/:id` | Actualiza email/nombre. |
 | `POST` | `/users/:id/status` | Activa/desactiva (`{ "isActive": true|false }`). |
@@ -156,6 +160,8 @@ Base URL: `http://localhost:3000/api`
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
+| `GET` | `/plans` | Lista todos los planes. |
+| `GET` | `/plans/:id` | Obtiene un plan por ID. |
 | `POST` | `/plans` | Crea plan (name, amount, currency, billingCycle). |
 | `PATCH` | `/plans/:id` | Actualiza nombre/descr. |
 | `PATCH` | `/plans/:id/price` | Cambia precio (amount, currency). |
@@ -165,33 +171,33 @@ Base URL: `http://localhost:3000/api`
 
 ```bash
 # Crear plan
-PLAN_ID=$(curl -s -X POST http://localhost:3000/api/plans \
+PLAN_ID=$(curl -s -X POST {{API_URL}}/plans \
   -H "Content-Type: application/json" \
   -d '{"name":"Starter","amount":15,"currency":"USD","billingCycleUnit":"month"}' | jq -r '.planId')
 
 # Crear usuario
-USER_ID=$(curl -s -X POST http://localhost:3000/api/users \
+USER_ID=$(curl -s -X POST {{API_URL}}/users \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","name":"Ada"}' | jq -r '.userId')
 
 # Crear suscripción
-curl -X POST http://localhost:3000/api/subscriptions \
+curl -X POST {{API_URL}}/subscriptions \
   -H "Content-Type: application/json" \
   -d "{\"userId\":\"$USER_ID\",\"planId\":\"$PLAN_ID\"}"
 
 # Renovar
-curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/renew \
+curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/renew \
   -H "Content-Type: application/json" \
   -d '{ "effectiveDate": "2025-01-01T00:00:00Z" }'
 
 # Pausar
-curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/pause
+curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/pause
 
 # Reanudar
-curl -X PATCH http://localhost:3000/api/subscriptions/SUB_ID/resume
+curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/resume
 
 # Cancelar
-curl -X DELETE http://localhost:3000/api/subscriptions/SUB_ID \
+curl -X DELETE {{API_URL}}/subscriptions/SUB_ID \
   -H "Content-Type: application/json" \
   -d '{ "effectiveDate": "2025-02-01T00:00:00Z" }'
 ```

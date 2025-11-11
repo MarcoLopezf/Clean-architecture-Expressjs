@@ -5,4 +5,5 @@ export interface SubscriptionRepository {
   findById(id: SubscriptionId): Promise<Subscription | null>;
   save(subscription: Subscription): Promise<void>;
   update(subscription: Subscription): Promise<void>;
+  findAll(): Promise<Subscription[]>;
 }

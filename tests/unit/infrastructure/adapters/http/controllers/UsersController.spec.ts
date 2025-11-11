@@ -5,10 +5,14 @@ import { UsersController } from '../../../../../../src/infrastructure/adapters/h
 import type { CreateUserUseCase } from '../../../../../../src/application/use-cases/users/CreateUserUseCase';
 import type { UpdateUserProfileUseCase } from '../../../../../../src/application/use-cases/users/UpdateUserProfileUseCase';
 import type { ToggleUserStatusUseCase } from '../../../../../../src/application/use-cases/users/ToggleUserStatusUseCase';
+import type { ListUsersUseCase } from '../../../../../../src/application/use-cases/users/ListUsersUseCase';
+import type { GetUserByIdUseCase } from '../../../../../../src/application/use-cases/users/GetUserByIdUseCase';
 import type { LoggerPort } from '../../../../../../src/application/ports/logger.port';
 
 const noopUseCase = { execute: vi.fn() } as unknown as CreateUserUseCase;
 const noopUpdateUseCase = { execute: vi.fn() } as unknown as UpdateUserProfileUseCase;
+const noopListUseCase = { execute: vi.fn() } as unknown as ListUsersUseCase;
+const noopGetUseCase = { execute: vi.fn() } as unknown as GetUserByIdUseCase;
 
 const createLogger = () => {
   const child = {
@@ -38,6 +42,8 @@ describe('UsersController.toggleStatus', () => {
       noopUseCase,
       noopUpdateUseCase,
       toggleUserStatus,
+      noopListUseCase,
+      noopGetUseCase,
       rootLogger
     );
 
@@ -69,6 +75,8 @@ describe('UsersController.toggleStatus', () => {
       noopUseCase,
       noopUpdateUseCase,
       toggleUserStatus,
+      noopListUseCase,
+      noopGetUseCase,
       rootLogger
     );
 

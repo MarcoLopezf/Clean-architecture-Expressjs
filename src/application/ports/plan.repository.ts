@@ -5,4 +5,5 @@ export interface PlanRepository {
   findById(id: PlanId): Promise<Plan | null>;
   save(plan: Plan): Promise<void>;
   update(plan: Plan): Promise<void>;
+  findAll(): Promise<Plan[]>;
 }
