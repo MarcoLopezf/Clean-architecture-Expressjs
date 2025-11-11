@@ -1,227 +1,222 @@
 # Subscription Express Clean
 
-Sistema de gestión de suscripciones implementado con **Clean Architecture** sobre Node.js + TypeScript. El objetivo es encapsular la lógica de dominio (planes, usuarios, pagos, suscripciones) y exponerla mediante casos de uso desacoplados y adaptadores reemplazables (HTTP, persistencia, gateways externos).
+Subscription management system implemented with **Clean Architecture** on top of Node.js + TypeScript. The goal is to encapsulate domain logic (plans, users, payments, subscriptions) and expose it through decoupled use cases with replaceable adapters (HTTP, persistence, external gateways).
 
 ---
 
-## 🧱 Arquitectura
+## 🧱 Architecture
 
-El proyecto sigue cuatro capas concéntricas:
+The project follows four concentric layers:
 
-| Capa | Descripción | Ubicación |
-|------|-------------|-----------|
-| **Domain** | Entidades, Value Objects, eventos, reglas de negocio puras. No conoce frameworks. | `src/domain` |
-| **Application** | Casos de uso y puertos (interfaces) que orquestan el dominio. | `src/application` |
-| **Infrastructure** | Adaptadores concretos (HTTP, persistencia in-memory, gateways). | `src/infrastructure` |
-| **Main** | Composition root: inyecta adaptadores en los casos de uso y levanta procesos (HTTP server). | `main` |
+| Layer | Description | Location |
+|------|-------------|----------|
+| **Domain** | Entities, Value Objects, events, pure business rules. Framework-agnostic. | `src/domain` |
+| **Application** | Use cases and ports (interfaces) orchestrating the domain. | `src/application` |
+| **Infrastructure** | Concrete adapters (HTTP, in-memory persistence, gateways). | `src/infrastructure` |
+| **Main** | Composition root: wires adapters into use cases and boots processes (HTTP server). | `main` |
 
-Dependencias solo apuntan hacia dentro (Infra → Application → Domain). Ninguna importación circular.
+Dependencies always point inward (Infra → Application → Domain). No circular imports.
 
-### Dominio
+### Domain
 
-- **Entidades**: `User`, `Plan`, `Subscription`, `Payment` con métodos ricos (activar/desactivar, renovar, etc.).
-- **Value Objects**: `UserId`, `EmailAddress`, `Price`, `BillingCycle`, `SubscriptionStatusValue`, etc. Garantizan invariantes y evitan primitive obsession.
-- **Eventos de dominio**: `SubscriptionCreatedEvent`, `SubscriptionRenewedEvent`, `SubscriptionCancelledEvent`, `SubscriptionResumedEvent`.
+- **Entities**: `User`, `Plan`, `Subscription`, `Payment` with rich behavior (activate/deactivate, renew, etc.).
+- **Value Objects**: `UserId`, `EmailAddress`, `Price`, `BillingCycle`, `SubscriptionStatusValue`, etc., to guarantee invariants and avoid primitive obsession.
+- **Domain Events**: `SubscriptionCreatedEvent`, `SubscriptionRenewedEvent`, `SubscriptionCancelledEvent`, `SubscriptionResumedEvent`.
 
-### Casos de uso
+### Use Cases
 
-#### Suscripciones
-- `CreateSubscriptionUseCase`: crea suscripción `pending`, cobra, activa y publica evento.
-- `RenewSubscriptionUseCase`: cobra, renueva fechas y emite evento.
-- `CancelSubscriptionUseCase`: cancela con fecha efectiva.
-- `PauseSubscriptionUseCase`: cambia a estado `paused`.
-- `ResumeSubscriptionUseCase`: vuelve a `active` desde `paused`/`pending` y publica evento.
+#### Subscriptions
+- `CreateSubscriptionUseCase`: creates a pending subscription, charges, activates, and publishes an event.
+- `RenewSubscriptionUseCase`: charges, shifts dates, emits event.
+- `CancelSubscriptionUseCase`: cancels with an effective date.
+- `PauseSubscriptionUseCase`: switches to `paused`.
+- `ResumeSubscriptionUseCase`: returns to `active` from `paused`/`pending` and emits event.
 
-#### Usuarios
-- `CreateUserUseCase`: valida email único, crea user.
-- `UpdateUserProfileUseCase`: actualiza email/nombre con comprobación de duplicados.
-- `ToggleUserStatusUseCase`: activa/desactiva el usuario.
+#### Users
+- `CreateUserUseCase`: ensures unique email, creates user.
+- `UpdateUserProfileUseCase`: updates email/name with duplication checks.
+- `ToggleUserStatusUseCase`: activates/deactivates user.
 
-#### Planes
+#### Plans
 - `CreatePlanUseCase`.
-- `UpdatePlanDetailsUseCase` (nombre/descripción).
+- `UpdatePlanDetailsUseCase` (name/description).
 - `UpdatePlanPriceUseCase`.
 - `TogglePlanStatusUseCase`.
+- Additional payment-related use cases can reuse `Payment` and `PaymentGateway` when needed.
 
-Casos de pago extra (registro manual) pueden añadirse reutilizando `Payment` y `PaymentGateway` si se requiere.
+### Infrastructure Adapters
 
-### Infraestructura actual
+#### Persistence options
 
-### Persistencia y adaptadores
+Two interchangeable families implementing the same ports:
 
-Actualmente existen dos familias de adaptadores que implementan los mismos puertos:
-
-| Puerto | In-memory | PostgreSQL (TypeORM) | Ubicación |
-|--------|-----------|----------------------|-----------|
+| Port | In-memory | PostgreSQL (TypeORM) | Location |
+|------|-----------|----------------------|----------|
 | `PlanRepository` | `InMemoryPlanRepository` | `TypeOrmPlanRepository` | `src/infrastructure/adapters/persistence/*` |
-| `UserRepository` | `InMemoryUserRepository` | `TypeOrmUserRepository` | idem |
-| `SubscriptionRepository` | `InMemorySubscriptionRepository` | `TypeOrmSubscriptionRepository` | idem |
-| `PaymentGateway` | `InMemoryPaymentGateway` | *(stub actual)* | `src/infrastructure/adapters/gateways` |
-| `EventPublisher` | `InMemoryEventPublisher` | *(stub actual)* | `src/infrastructure/adapters/gateways` |
+| `UserRepository` | `InMemoryUserRepository` | `TypeOrmUserRepository` | `src/infrastructure/adapters/persistence/*` |
+| `SubscriptionRepository` | `InMemorySubscriptionRepository` | `TypeOrmSubscriptionRepository` | `src/infrastructure/adapters/persistence/*` |
+| `PaymentGateway` | `InMemoryPaymentGateway` | *(stub for now)* | `src/infrastructure/adapters/gateways` |
+| `EventPublisher` | `InMemoryEventPublisher` | *(stub for now)* | `src/infrastructure/adapters/gateways` |
 
-Los repositorios TypeORM apuntan al esquema PostgreSQL definido en `src/infrastructure/database` (entidades + migraciones). Puedes seleccionar qué implementación usar poniendo `PERSISTENCE=memory` (default) o `PERSISTENCE=typeorm`.
+TypeORM repositories target the PostgreSQL schema in `src/infrastructure/database` (entities + migrations). Choose the implementation via `PERSISTENCE=memory` (default) or `PERSISTENCE=typeorm`.
 
-HTTP sigue siendo Express (`src/infrastructure/adapters/http`). Cada controlador mapea JSON ↔ DTOs before delegar a los casos de uso.
+HTTP still uses Express (`src/infrastructure/adapters/http`). Controllers map JSON ↔ DTOs before delegating to use cases.
 
 ---
 
-## ⚙️ Configuración local
+## ⚙️ Local Setup
 
-1. **Instalar dependencias**
+1. **Install dependencies**
    ```bash
    npm install
    ```
-2. **Variables de entorno**
+2. **Environment variables**
    ```bash
    cp .env.example .env
    ```
-   Ajusta `DATABASE_*`, `DATABASE_URL`, `PORT` y `PERSISTENCE` según tu entorno.
-3. **Levantar PostgreSQL con Docker**
+   Adjust `DATABASE_*`, `DATABASE_URL`, `PORT`, and `PERSISTENCE` as needed.
+3. **Run PostgreSQL with Docker**
    ```bash
    docker compose up -d postgres
    ```
-   El servicio usa la imagen oficial `postgres:16-alpine`, expone el puerto `5432` y persiste datos en `postgres_data`.
-4. **Migraciones TypeORM**
+   Uses `postgres:16-alpine`, exposes port `5432`, and keeps data in `postgres_data`.
+4. **Run migrations**
    ```bash
    npm run migration:run
    ```
-5. **Arrancar el servidor**
+5. **Start the server**
    ```bash
-   PERSISTENCE=typeorm npm run dev   # usa Postgres real
-   # o
-   npm run dev                       # modo in-memory
+   PERSISTENCE=typeorm npm run dev   # real Postgres
+   npm run dev                       # in-memory
    ```
 
-> El composition root (`main/composition.ts`) inicializa los repositorios adecuados según `PERSISTENCE`. `main/server.ts` lo invoca antes de montar Express.
+> The composition root (`main/composition.ts`) picks the proper repositories based on `PERSISTENCE`. `main/server.ts` invokes it before mounting Express.
 
-### Scripts disponibles
+### Available scripts
 
-| Script | Descripción |
+| Script | Description |
 |--------|-------------|
-| `npm run dev` | Levanta el HTTP server (usa `PERSISTENCE` del entorno). |
-| `npm run dev:composition` | Ejecuta el composition root manualmente. |
-| `npm run migration:run` | Aplica las migraciones configuradas. |
-| `npm run migration:revert` | Revierte la última migración. |
-| `npm run migration:generate -- --name <Nombre>` | Genera una nueva migración basada en las entidades. |
+| `npm run dev` | Starts the HTTP server (honors `PERSISTENCE`). |
+| `npm run dev:composition` | Executes the composition root manually. |
+| `npm run migration:run` | Applies migrations. |
+| `npm run migration:revert` | Reverts last migration. |
+| `npm run migration:generate -- --name Foo` | Generates a migration from current entities. |
 
 ---
 
-## 📦 Dependencias principales
+## 📦 Key Dependencies
 
-- **Servidor / utilidades**: `express`, `dotenv`, `reflect-metadata`.
-- **Persistencia**: `typeorm`, `pg`.
+- **Server/utilities**: `express`, `dotenv`, `reflect-metadata`.
+- **Persistence**: `typeorm`, `pg`.
 - **Tooling**: `ts-node`, `typescript`, `vitest`.
 
 ---
 
 ## 🧪 Testing
 
-Comando principal:
-
 ```bash
 npm test
 ```
 
-Cobertura cubre:
-
-- Entidades: `tests/unit/domain/entities/*`
-- Casos de uso: `tests/unit/application/use-cases/**/*`
-- Para tests de infraestructura o integración se pueden crear suites adicionales reutilizando el composition root o los adaptadores in-memory.
+Coverage includes:
+- Domain entities: `tests/unit/domain/entities/*`
+- Use cases: `tests/unit/application/use-cases/**/*`
+- Add integration suites as needed by reusing the composition root or adapters.
 
 ---
 
-## 🌐 API HTTP
+## 🌐 HTTP API
 
 Base URL: `{{API_URL}}`
 
-### Suscripciones
+### Subscriptions
 
-| Método | Ruta | Descripción |
+| Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/subscriptions` | Lista todas las suscripciones. |
-| `GET` | `/subscriptions/:id` | Obtiene una suscripción por ID. |
-| `POST` | `/subscriptions` | Crea suscripción (requiere `userId`, `planId`). |
-| `PATCH` | `/subscriptions/:id/renew` | Renueva (opcional `effectiveDate`). |
-| `DELETE` | `/subscriptions/:id` | Cancela (opcional `effectiveDate`). |
-| `PATCH` | `/subscriptions/:id/pause` | Pausa suscripción. |
-| `PATCH` | `/subscriptions/:id/resume` | Resume suscripción. |
+| `GET` | `/subscriptions` | List all subscriptions. |
+| `GET` | `/subscriptions/:id` | Fetch subscription by ID. |
+| `POST` | `/subscriptions` | Create subscription (`userId`, `planId`). |
+| `PATCH` | `/subscriptions/:id/renew` | Renew (optional `effectiveDate`). |
+| `DELETE` | `/subscriptions/:id` | Cancel (optional `effectiveDate`). |
+| `PATCH` | `/subscriptions/:id/pause` | Pause subscription. |
+| `PATCH` | `/subscriptions/:id/resume` | Resume subscription. |
 
-### Usuarios
+### Users
 
-| Método | Ruta | Descripción |
+| Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/users` | Lista todos los usuarios. |
-| `GET` | `/users/:id` | Obtiene un usuario por ID. |
-| `POST` | `/users` | Crea usuario (email, name). |
-| `PATCH` | `/users/:id` | Actualiza email/nombre. |
-| `POST` | `/users/:id/status` | Activa/desactiva (`{ "isActive": true|false }`). |
+| `GET` | `/users` | List all users. |
+| `GET` | `/users/:id` | Fetch user by ID. |
+| `POST` | `/users` | Create user (email, name). |
+| `PATCH` | `/users/:id` | Update email/name. |
+| `POST` | `/users/:id/status` | Toggle status (`{ "isActive": true|false }`). |
 
-### Planes
+### Plans
 
-| Método | Ruta | Descripción |
+| Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/plans` | Lista todos los planes. |
-| `GET` | `/plans/:id` | Obtiene un plan por ID. |
-| `POST` | `/plans` | Crea plan (name, amount, currency, billingCycle). |
-| `PATCH` | `/plans/:id` | Actualiza nombre/descr. |
-| `PATCH` | `/plans/:id/price` | Cambia precio (amount, currency). |
-| `PATCH` | `/plans/:id/status` | Activa/desactiva. |
+| `GET` | `/plans` | List all plans. |
+| `GET` | `/plans/:id` | Fetch plan by ID. |
+| `POST` | `/plans` | Create plan (name, amount, billing cycle, etc.). |
+| `PATCH` | `/plans/:id` | Update name/description. |
+| `PATCH` | `/plans/:id/price` | Update price (amount, currency). |
+| `PATCH` | `/plans/:id/status` | Toggle activation. |
 
-### Ejemplos cURL
+### Sample cURLs
 
 ```bash
-# Crear plan
+# Create plan
 PLAN_ID=$(curl -s -X POST {{API_URL}}/plans \
   -H "Content-Type: application/json" \
   -d '{"name":"Starter","amount":15,"currency":"USD","billingCycleUnit":"month"}' | jq -r '.planId')
 
-# Crear usuario
+# Create user
 USER_ID=$(curl -s -X POST {{API_URL}}/users \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","name":"Ada"}' | jq -r '.userId')
 
-# Crear suscripción
+# Create subscription
 curl -X POST {{API_URL}}/subscriptions \
   -H "Content-Type: application/json" \
   -d "{\"userId\":\"$USER_ID\",\"planId\":\"$PLAN_ID\"}"
 
-# Renovar
+# Renew
 curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/renew \
   -H "Content-Type: application/json" \
   -d '{ "effectiveDate": "2025-01-01T00:00:00Z" }'
 
-# Pausar
+# Pause
 curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/pause
 
-# Reanudar
+# Resume
 curl -X PATCH {{API_URL}}/subscriptions/SUB_ID/resume
 
-# Cancelar
+# Cancel
 curl -X DELETE {{API_URL}}/subscriptions/SUB_ID \
   -H "Content-Type: application/json" \
   -d '{ "effectiveDate": "2025-02-01T00:00:00Z" }'
 ```
 
-> Nota: si usas `PERSISTENCE=memory`, los datos se pierden al reiniciar. Con `PERSISTENCE=typeorm` quedan guardados en PostgreSQL.
+> Note: with `PERSISTENCE=memory` data resets after restart. With `PERSISTENCE=typeorm` it persists in PostgreSQL.
 
 ---
 
-## 🧭 Roadmap sugerido
+## 🧭 Suggested Roadmap
 
-- **Persistencia real**: crear adaptadores Postgres/Mongo implementando los mismos puertos.
-- **Validación y errores tipados**: usar librerías (p.ej. Zod) para validar DTOs en controladores y modelar errores específicos.
-- **Autenticación / autorización**: agregar middleware y casos de uso asociados.
-- **Observabilidad**: logging estructurado, métricas, tracing.
-- **Testing e2e**: montar pruebas sobre el servidor Express aprovechando los adaptadores in-memory o dobles de test.
+- **Production persistence**: finalize PostgreSQL adapters (or Mongo) behind the same ports.
+- **Validation & typed errors**: e.g., Zod for DTO validation, domain-specific error classes.
+- **AuthN/AuthZ**: middleware + use cases.
+- **Observability**: structured logging, metrics, tracing.
+- **E2E testing**: run Express server in tests using adapters suited for integration.
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-1. Crea una branch desde `main`.
-2. Respeta la dirección de dependencias (Infra → App → Domain) y mantén los adapters aislados.
-3. Agrega/actualiza pruebas con `vitest`.
-4. Ejecuta `npm test` y, si tocaste DB, `npm run migration:run` para validar.
-5. Documenta nuevos adaptadores o decisiones (README principal o de cada carpeta).
+1. Create a branch off `main`.
+2. Respect dependency direction (Infra → App → Domain) and keep adapters isolated.
+3. Add/update tests with `vitest`.
+4. Run `npm test` and, if you touched DB, `npm run migration:run`.
+5. Document new adapters/decisions here or in per-folder READMEs.
 
-¡Listo! Ya puedes explorar, extender o integrar este sistema de suscripciones. ✨
+Happy hacking! ✨
