@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import { SubscriptionsController } from './controllers/SubscriptionsController';
 import { UsersController } from './controllers/UsersController';
 import { PlansController } from './controllers/PlansController';
+import { AdminController } from './controllers/AdminController';
 import { HttpUseCaseRegistry } from './types';
 import { type LoggerPort } from '../../../application/ports/logger.port';
 
@@ -41,6 +42,11 @@ export const buildRouter = (
     logger.child({ controller: 'PlansController' })
   );
 
+  const adminController = new AdminController(
+    useCases.changeUserRole,
+    logger.child({ controller: 'AdminController' })
+  );
+
   router.get('/subscriptions', subscriptionsController.list);
   router.get('/subscriptions/:id', subscriptionsController.getById);
   router.post('/subscriptions', subscriptionsController.create);
@@ -61,6 +67,8 @@ export const buildRouter = (
   router.patch('/plans/:id', plansController.updateDetails);
   router.patch('/plans/:id/price', plansController.updatePrice);
   router.patch('/plans/:id/status', plansController.toggleStatus);
+  router.post('/admin/bootstrap', adminController.bootstrapAdmin);
+  router.patch('/admin/users/:id/role', adminController.changeRole);
 
   return router;
 };

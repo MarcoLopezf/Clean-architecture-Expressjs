@@ -1,6 +1,7 @@
 import { EmailAddress } from '../../shared/EmailAddress';
 import { UserId } from '../../shared/UserId';
 import { UserName } from '../../shared/UserName';
+import { UserRole, type UserRoleValue } from '../../shared/UserRole';
 
 interface UserProps {
   readonly id: UserId;
@@ -9,6 +10,7 @@ interface UserProps {
   readonly createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  role: UserRole;
 }
 
 export interface UserCreateProps {
@@ -17,6 +19,7 @@ export interface UserCreateProps {
   name: string;
   createdAt?: Date;
   isActive?: boolean;
+  role?: UserRoleValue;
 }
 
 export interface UserPrimitives {
@@ -26,6 +29,7 @@ export interface UserPrimitives {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  role: UserRoleValue;
 }
 
 export class User {
@@ -39,7 +43,8 @@ export class User {
       name: UserName.create(props.name),
       createdAt,
       updatedAt: createdAt,
-      isActive: props.isActive ?? true
+      isActive: props.isActive ?? true,
+      role: UserRole.create(props.role ?? 'user')
     };
 
     return new User(userProps);
@@ -52,7 +57,8 @@ export class User {
       name: UserName.create(primitives.name),
       createdAt: User.cloneDate(primitives.createdAt),
       updatedAt: User.cloneDate(primitives.updatedAt),
-      isActive: primitives.isActive
+      isActive: primitives.isActive,
+      role: UserRole.create(primitives.role)
     });
   }
 
@@ -92,6 +98,10 @@ export class User {
     return this.props.isActive;
   }
 
+  get role(): UserRoleValue {
+    return this.props.role.toString();
+  }
+
   updateEmail(newEmail: string): void {
     this.props.email = EmailAddress.create(newEmail);
     this.touch();
@@ -120,6 +130,11 @@ export class User {
     this.touch();
   }
 
+  changeRole(role: UserRoleValue): void {
+    this.props.role = UserRole.create(role);
+    this.touch();
+  }
+
   toPrimitives(): UserPrimitives {
     return {
       id: this.id,
@@ -127,7 +142,8 @@ export class User {
       name: this.name,
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
-      isActive: this.props.isActive
+      isActive: this.props.isActive,
+      role: this.role
     };
   }
 

@@ -8,6 +8,7 @@ import { UpdateUserProfileUseCase } from '../../../application/use-cases/users/U
 import { ToggleUserStatusUseCase } from '../../../application/use-cases/users/ToggleUserStatusUseCase';
 import { ListUsersUseCase } from '../../../application/use-cases/users/ListUsersUseCase';
 import { GetUserByIdUseCase } from '../../../application/use-cases/users/GetUserByIdUseCase';
+import { ChangeUserRoleUseCase } from '../../../application/use-cases/users/ChangeUserRoleUseCase';
 import { CreatePlanUseCase } from '../../../application/use-cases/plans/CreatePlanUseCase';
 import { UpdatePlanDetailsUseCase } from '../../../application/use-cases/plans/UpdatePlanDetailsUseCase';
 import { UpdatePlanPriceUseCase } from '../../../application/use-cases/plans/UpdatePlanPriceUseCase';
@@ -30,6 +31,7 @@ export interface HttpUseCaseRegistry {
   toggleUserStatus: ToggleUserStatusUseCase;
   listUsers: ListUsersUseCase;
   getUserById: GetUserByIdUseCase;
+  changeUserRole: ChangeUserRoleUseCase;
   createPlan: CreatePlanUseCase;
   updatePlanDetails: UpdatePlanDetailsUseCase;
   updatePlanPrice: UpdatePlanPriceUseCase;

@@ -18,6 +18,7 @@ import { ToggleUserStatusUseCase } from '../src/application/use-cases/users/Togg
 import { UpdateUserProfileUseCase } from '../src/application/use-cases/users/UpdateUserProfileUseCase';
 import { ListUsersUseCase } from '../src/application/use-cases/users/ListUsersUseCase';
 import { GetUserByIdUseCase } from '../src/application/use-cases/users/GetUserByIdUseCase';
+import { ChangeUserRoleUseCase } from '../src/application/use-cases/users/ChangeUserRoleUseCase';
 import type { PlanRepository } from '../src/application/ports/plan.repository';
 import type { SubscriptionRepository } from '../src/application/ports/subscription.repository';
 import type { UserRepository } from '../src/application/ports/user.repository';
@@ -47,6 +48,7 @@ export interface UseCaseRegistry {
   toggleUserStatus: ToggleUserStatusUseCase;
   listUsers: ListUsersUseCase;
   getUserById: GetUserByIdUseCase;
+  changeUserRole: ChangeUserRoleUseCase;
   createPlan: CreatePlanUseCase;
   updatePlanDetails: UpdatePlanDetailsUseCase;
   updatePlanPrice: UpdatePlanPriceUseCase;
@@ -129,6 +131,7 @@ const buildComposition = (repositories: RepositoryBundle): Composition => {
     toggleUserStatus: new ToggleUserStatusUseCase(repositories.userRepository),
     listUsers: new ListUsersUseCase(repositories.userRepository),
     getUserById: new GetUserByIdUseCase(repositories.userRepository),
+    changeUserRole: new ChangeUserRoleUseCase(repositories.userRepository),
     createPlan: new CreatePlanUseCase(repositories.planRepository, idGenerator),
     updatePlanDetails: new UpdatePlanDetailsUseCase(repositories.planRepository),
     updatePlanPrice: new UpdatePlanPriceUseCase(repositories.planRepository),

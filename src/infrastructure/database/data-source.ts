@@ -3,6 +3,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import dotenv from 'dotenv';
 import { databaseEntities } from './entities';
 import { InitSchema1729020000000 } from './migrations/1729020000000-InitSchema';
+import { AddUserRole1729021000000 } from './migrations/1729021000000-AddUserRole';
 
 dotenv.config();
 
@@ -36,6 +37,6 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: TYPEORM_LOGGING === 'true',
   entities: databaseEntities,
-  migrations: [InitSchema1729020000000],
+  migrations: [InitSchema1729020000000, AddUserRole1729021000000],
   subscribers: []
 });

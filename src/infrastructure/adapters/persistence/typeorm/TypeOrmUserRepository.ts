@@ -41,6 +41,7 @@ export class TypeOrmUserRepository implements UserRepository {
       email: user.email,
       name: user.name,
       isActive: user.isActive,
+      role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     });
@@ -54,7 +55,8 @@ export class TypeOrmUserRepository implements UserRepository {
       name: entity.name,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      isActive: entity.isActive
+      isActive: entity.isActive,
+      role: entity.role
     });
   }
 }

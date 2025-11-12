@@ -23,6 +23,15 @@ export class UserEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
+  @Column({
+    name: 'role',
+    type: 'enum',
+    enum: ['admin', 'operator', 'user'],
+    enumName: 'user_role',
+    default: 'user'
+  })
+  role!: 'admin' | 'operator' | 'user';
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

@@ -3,4 +3,5 @@ export interface UserDto {
   email: string;
   name: string;
   isActive: boolean;
+  role: string;
 }

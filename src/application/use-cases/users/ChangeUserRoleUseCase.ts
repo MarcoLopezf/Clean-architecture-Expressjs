@@ -1,28 +1,15 @@
-import { User } from '../../../domain/entities/users/User';
-import { UserId } from '../../../domain/shared/UserId';
 import { UserRepository } from '../../ports/user.repository';
-import { UpdateUserProfileRequestDto, UserDto } from '../../dtos/users';
+import { UserId } from '../../../domain/shared/UserId';
+import type { ChangeUserRoleRequestDto, UserDto } from '../../dtos/users';
+import type { User } from '../../../domain/entities/users/User';
 
-export class UpdateUserProfileUseCase {
+export class ChangeUserRoleUseCase {
   constructor(private readonly users: UserRepository) {}
 
-  async execute(request: UpdateUserProfileRequestDto): Promise<UserDto> {
+  async execute(request: ChangeUserRoleRequestDto): Promise<UserDto> {
     const user = await this.ensureUserExists(request.userId);
-
-    if (request.email) {
-      const existing = await this.users.findByEmail(request.email);
-      if (existing && existing.id !== user.id) {
-        throw new Error('Email is already in use by another user.');
-      }
-      user.updateEmail(request.email);
-    }
-
-    if (request.name) {
-      user.updateName(request.name);
-    }
-
+    user.changeRole(request.role);
     await this.users.update(user);
-
     return this.toDto(user);
   }
 

@@ -20,7 +20,8 @@ export class GetUserByIdUseCase {
       id: user.id,
       email: user.email,
       name: user.name,
-      isActive: user.isActive
+      isActive: user.isActive,
+      role: user.role
     };
   }
 }

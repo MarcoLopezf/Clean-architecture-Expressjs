@@ -74,7 +74,7 @@ HTTP still uses Express (`src/infrastructure/adapters/http`). Controllers transl
    ```bash
    cp .env.example .env
    ```
-   Adjust `DATABASE_*`, `DATABASE_URL`, `PORT`, and `PERSISTENCE` as needed.
+   Adjust `DATABASE_*`, `DATABASE_URL`, `PORT`, `PERSISTENCE`, and the admin tokens (`SETUP_ADMIN_TOKEN`, `ADMIN_API_TOKEN`) as needed.
 3. **Run PostgreSQL with Docker**
    ```bash
    docker compose up -d postgres
@@ -161,6 +161,15 @@ Base URL: `{{API_URL}}`
 | `PATCH` | `/plans/:id` | Update name/description. |
 | `PATCH` | `/plans/:id/price` | Update price (amount, currency). |
 | `PATCH` | `/plans/:id/status` | Toggle activation. |
+
+### Admin
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/admin/bootstrap` | Promotes a user to admin when supplying `X-Setup-Token` (only during initial setup). |
+| `PATCH` | `/admin/users/:id/role` | Changes user role (`admin`, `operator`, `user`) when `X-Admin-Token` matches the server token. |
+
+> Configure `SETUP_ADMIN_TOKEN` and `ADMIN_API_TOKEN` in `.env` and send them via `X-Setup-Token` / `X-Admin-Token` headers respectively.
 
 ### Sample cURLs
 
